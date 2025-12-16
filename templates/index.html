@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <!-- SEO -->
+    <title>文字数カウントツール｜全角・半角・行数対応【無料】</title>
+    <meta name="description" content="文章の文字数・行数・全角半角を無料で簡単にカウントできるWebツール。登録不要・完全無料。原稿作成やレポート、SNS投稿に便利。">
+
+    <!-- シンプルCSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        textarea {
+            width: 100%;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .result p {
+            margin: 4px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>文字数カウントツール</h1>
+
+        <!-- 広告スペース -->
+        <div>広告スペース</div>
+
+        <form method="POST">
+            <textarea name="text" rows="10">{{ text }}</textarea><br><br>
+
+            <label>
+                <input type="checkbox" name="ignore_space" {% if ignore_space %}checked{% endif %}>
+                空白・改行を除外
+            </label><br>
+
+            <label>
+                <input type="checkbox" name="only_zenkaku" {% if only_zenkaku %}checked{% endif %}>
+                全角だけ数える
+            </label><br><br>
+
+            <button type="submit">カウント</button>
+        </form>
+
+        <div class="result">
+            <p>文字数：{{ count }}</p>
+            <p>行数：{{ line_count }}</p>
+            <p>全角文字数：{{ zenkaku }}</p>
+            <p>半角文字数：{{ hankaku }}</p>
+        </div>
+
+        <div class="footer">
+            © 無料文字数カウントツール
+        </div>
+    </div>
+</body>
+
+</html>
