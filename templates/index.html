@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
 
@@ -7,33 +7,50 @@
     <title>文字数カウントツール｜全角・半角・行数対応【無料】</title>
     <meta name="description" content="文章の文字数・行数・全角半角を無料で簡単にカウントできるWebツール。登録不要・完全無料。原稿作成やレポート、SNS投稿に便利。">
 
+    <!-- レスポンシブ対応 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <!-- シンプルCSS -->
     <style>
         body {
             font-family: Arial, sans-serif;
             background: #f4f6f8;
+            margin: 0;
+            padding: 0;
         }
         .container {
             max-width: 700px;
-            margin: 40px auto;
+            margin: 20px auto;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
         h1 {
             margin-top: 0;
+            font-size: 1.5rem;
         }
         textarea {
             width: 100%;
             font-size: 14px;
+            padding: 8px;
+            box-sizing: border-box;
         }
         button {
-            padding: 8px 16px;
+            padding: 10px 16px;
             font-size: 14px;
             cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         .result p {
             margin: 4px 0;
+            font-size: 14px;
         }
         .ad {
             margin: 20px 0;
@@ -45,6 +62,16 @@
             color: #666;
             text-align: center;
         }
+
+        /* スマホ対応 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -52,7 +79,7 @@
     <div class="container">
         <h1>文字数カウントツール</h1>
 
-        <!-- 広告：フォーム下ベストポジション -->
+        <!-- 広告：フォーム直下 -->
         <div class="ad">
             <!-- admax -->
             <script src="https://adm.shinobi.jp/s/e2b74a6f9548841dad7c0afd092a0611"></script>
@@ -60,7 +87,7 @@
         </div>
 
         <form method="POST">
-            <textarea name="text" rows="10">{{ text }}</textarea><br><br>
+            <textarea name="text" rows="10" placeholder="ここにテキストを入力">{{ text }}</textarea><br><br>
 
             <label>
                 <input type="checkbox" name="ignore_space" {% if ignore_space %}checked{% endif %}>
