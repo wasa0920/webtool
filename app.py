@@ -5,6 +5,31 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     text = ""
+    length = 0
+    lines = 0
+    zenkaku = 0
+
+    if request.method == "POST":
+        text = request.form.get("text", "")
+        length = len(text)
+        lines = text.count("\n") + 1 if text else 0
+        zenkaku = sum(1 for c in text if ord(c) > 127)
+
+    return render_template(
+        "index.html",
+        text=text,
+        length=length,
+        lines=lines,
+        zenkaku=zenkaku
+    )
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    text = ""
     count = 0
     ignore_space = False
     line_count = 0
