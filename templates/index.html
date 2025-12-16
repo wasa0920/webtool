@@ -3,92 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>高機能文字カウントツール｜SNS・ライター向け</title>
-<meta name="description" content="文字数・行数・段落・漢字・ひらがな・カタカナ・英字・数字・記号を無料でカウント。読み時間も計算可能。">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>メール文章チェックツール</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:0; }
+body { font-family: Arial; background:#f4f6f8; }
 .container { max-width:700px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; }
-textarea { width:100%; height:150px; font-size:14px; padding:8px; box-sizing:border-box; }
-button { padding:10px 16px; font-size:14px; cursor:pointer; background:#007bff; color:#fff; border:none; border-radius:4px; }
-button:hover { background:#0056b3; }
-.result p { margin:4px 0; }
-
-/* 広告用 */
-.ad { margin:20px 0; text-align:center; }
-/* PC広告 */
-.ad-pc { display:block; }
-/* SP広告 */
-.ad-sp { display:none; }
-
-/* スマホ用表示切替 */
-@media screen and (max-width:768px){
-  .ad-pc { display:none; }
-  .ad-sp { display:block; }
-}
-
-canvas { max-width:100%; }
+textarea { width:100%; height:150px; }
+.result { background:#f9f9f9; padding:10px; margin-top:10px; white-space:pre-wrap; }
+.warning { color:red; font-size:14px; }
 </style>
 </head>
 <body>
-<div class="container">
-<h1>高機能文字カウントツール</h1>
 
-<!-- 広告 -->
-<div class="ad">
-    <!-- PC用広告 -->
-    <div class="ad-pc">
-        <script src="https://adm.shinobi.jp/s/xxxx_pc"></script>
-    </div>
-    <!-- スマホ用広告 -->
-    <div class="ad-sp">
-        <script src="https://adm.shinobi.jp/s/e2b74a6f9548841dad7c0afd092a0611"></script>
-    </div>
-</div>
+<div class="container">
+<h1>メール文章チェックツール</h1>
+
+<!-- admax -->
+<script src="https://adm.shinobi.jp/s/138f492d491daea5a64a70d47bb18d81"></script>
+<!-- admax -->
 
 <form method="POST">
-<textarea name="text" placeholder="ここに文章を入力">{{ text }}</textarea><br><br>
-<button type="submit">カウント</button>
+<textarea name="text" placeholder="メール本文を入力">{{ text }}</textarea><br><br>
+
+<label><input type="radio" name="level" value="soft" {% if level=="soft" %}checked{% endif %}> やわらか</label>
+<label><input type="radio" name="level" value="normal" {% if level=="normal" %}checked{% endif %}> 普通</label>
+<label><input type="radio" name="level" value="hard" {% if level=="hard" %}checked{% endif %}> 丁寧</label>
+
+<br><br>
+<button type="submit">チェックする</button>
 </form>
 
-{% if total_count %}
-<div class="result">
-<p>文字数：{{ total_count }}</p>
-<p>行数：{{ line_count }}</p>
-<p>段落数：{{ paragraph_count }}</p>
-<p>読み時間：約{{ read_time }}分</p>
-<p>漢字：{{ types.kanji }}</p>
-<p>ひらがな：{{ types.hiragana }}</p>
-<p>カタカナ：{{ types.katakana }}</p>
-<p>英字：{{ types.alphabet }}</p>
-<p>数字：{{ types.number }}</p>
-<p>記号：{{ types.symbol }}</p>
-<p>全角文字：{{ types.zenkaku }}</p>
-<p>半角文字：{{ types.hankaku }}</p>
+{% if warnings %}
+<div class="warning">
+{% for w in warnings %}
+<p>{{ w }}</p>
+{% endfor %}
 </div>
+{% endif %}
 
-<canvas id="typeChart"></canvas>
-<script>
-const ctx = document.getElementById('typeChart').getContext('2d');
-new Chart(ctx, {
-    type: 'pie',
-    data: {
-        labels: ['漢字','ひらがな','カタカナ','英字','数字','記号'],
-        datasets: [{
-            data: [
-                {{ types.kanji }},
-                {{ types.hiragana }},
-                {{ types.katakana }},
-                {{ types.alphabet }},
-                {{ types.number }},
-                {{ types.symbol }}
-            ],
-            backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40']
-        }]
-    },
-    options: { responsive:true, plugins:{ legend:{ position:'bottom' } } }
-});
-</script>
+{% if result %}
+<h3>改善後の文章</h3>
+<div class="result">{{ result }}</div>
 {% endif %}
 
 </div>
