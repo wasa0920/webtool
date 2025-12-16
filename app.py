@@ -2,66 +2,47 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-NG_WORDS = {
-    "了解です": "「承知いたしました」が推奨です",
-    "すみません": "「申し訳ございません」が丁寧です",
-    "了解しました": "目上の方には「承知いたしました」",
-    "ご苦労様": "目上の方には「お疲れ様です」"
-}
+def improve_text(text, options):
+    result = text
 
-SOFT_REPLACE = {
-    "お願いします": "お願いできますでしょうか",
-    "確認してください": "ご確認いただけますと幸いです",
-}
+    # C：丁寧語に統一
+    if "C" in options:
+        result = result.replace("です。", "でございます。")
+        result = result.replace("ます。", "ます。")
 
-HARD_REPLACE = {
-    "お願いします": "お願い申し上げます",
-    "確認してください": "ご確認のほど何卒よろしくお願い申し上げます",
-}
+    # D：クッション言葉追加
+    if "D" in options:
+        if not result.startswith("恐れ入りますが"):
+            result = "恐れ入りますが、\n" + result
 
+    # E：結びを丁寧に
+    if "E" in options:
+        if "何卒よろしく" not in result:
+            result += "\n\n何卒よろしくお願いいたします。"
 
-def rewrite_text(text, level):
-    for k, v in NG_WORDS.items():
-        text = text.replace(k, v.split("」")[0])
-
-    if level == "soft":
-        for k, v in SOFT_REPLACE.items():
-            text = text.replace(k, v)
-    elif level == "hard":
-        for k, v in HARD_REPLACE.items():
-            text = text.replace(k, v)
-
-    return text
+    return result
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    text = ""
-    result = ""
-    warnings = []
-    level = "normal"
+    original_text = ""
+    improved_text = ""
+    selected = []
 
     if request.method == "POST":
-        text = request.form.get("text", "")
-        level = request.form.get("level", "normal")
+        original_text = request.form.get("text", "")
+        selected = request.form.getlist("improve")
 
-        for word, msg in NG_WORDS.items():
-            if word in text:
-                warnings.append(f"⚠ {msg}")
-
-        body = rewrite_text(text, level)
-
-        head = "お世話になっております。\n\n"
-        tail = "\n\n何卒よろしくお願いいたします。"
-
-        result = head + body + tail
+        if selected:
+            improved_text = improve_text(original_text, selected)
+        else:
+            improved_text = original_text  # ←重要
 
     return render_template(
         "index.html",
-        text=text,
-        result=result,
-        warnings=warnings,
-        level=level
+        original_text=original_text,
+        improved_text=improved_text,
+        selected=selected
     )
 
 
