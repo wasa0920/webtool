@@ -1,11 +1,29 @@
 from flask import Flask, render_template, request
+import re
 import math
-import unicodedata
 
 app = Flask(__name__)
 
-def count_types(text):
-    counts = {
+# NGワード（差別化用・今後増やせる）
+NG_WORDS = [
+    "恐れ入りますが",
+    "お手数ですが",
+    "ご確認ください",
+    "念のため",
+    "一応",
+    "とりあえず"
+]
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    text = ""
+    total_count = 0
+    line_count = 0
+    paragraph_count = 0
+    read_time = 0
+    found_ng_words = []
+
+    types = {
         "kanji": 0,
         "hiragana": 0,
         "katakana": 0,
@@ -16,50 +34,47 @@ def count_types(text):
         "hankaku": 0
     }
 
-    for c in text:
-        # 全角・半角判定
-        width = unicodedata.east_asian_width(c)
-        if width in ['F', 'W', 'A']:  # 全角、広い文字、曖昧
-            counts["zenkaku"] += 1
-        else:
-            counts["hankaku"] += 1
-
-        # 文字種類カウント
-        code = ord(c)
-        if 0x4E00 <= code <= 0x9FAF:  # 漢字
-            counts["kanji"] += 1
-        elif 0x3040 <= code <= 0x309F:  # ひらがな
-            counts["hiragana"] += 1
-        elif 0x30A0 <= code <= 0x30FF:  # カタカナ
-            counts["katakana"] += 1
-        elif c.isalpha():  # 英字
-            counts["alphabet"] += 1
-        elif c.isdigit():  # 数字
-            counts["number"] += 1
-        else:
-            counts["symbol"] += 1
-
-    return counts
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    text = ""
-    total_count = 0
-    line_count = 0
-    paragraph_count = 0
-    types = {
-        "kanji":0,"hiragana":0,"katakana":0,"alphabet":0,
-        "number":0,"symbol":0,"zenkaku":0,"hankaku":0
-    }
-    read_time = 0
-
     if request.method == "POST":
-        text = request.form.get("text","")
-        line_count = text.count("\n") + 1 if text else 0
-        paragraph_count = text.count("\n\n") + 1 if text else 0
-        types = count_types(text)
+        text = request.form.get("text", "")
+
+        # 文字数
         total_count = len(text)
-        read_time = math.ceil(total_count / 400)
+
+        # 行数
+        line_count = text.count("\n") + 1 if text else 0
+
+        # 段落数（空行区切り）
+        paragraph_count = len([p for p in text.split("\n\n") if p.strip()])
+
+        # 読み時間（日本語400文字/分想定）
+        read_time = math.ceil(total_count / 400) if total_count else 0
+
+        # 文字種別カウント
+        for c in text:
+            code = ord(c)
+
+            if code <= 127:
+                types["hankaku"] += 1
+            else:
+                types["zenkaku"] += 1
+
+            if re.match(r"[一-龯]", c):
+                types["kanji"] += 1
+            elif re.match(r"[ぁ-ん]", c):
+                types["hiragana"] += 1
+            elif re.match(r"[ァ-ヶー]", c):
+                types["katakana"] += 1
+            elif re.match(r"[A-Za-z]", c):
+                types["alphabet"] += 1
+            elif re.match(r"[0-9]", c):
+                types["number"] += 1
+            else:
+                types["symbol"] += 1
+
+        # NGワード検出
+        for word in NG_WORDS:
+            if word in text:
+                found_ng_words.append(word)
 
     return render_template(
         "index.html",
@@ -67,9 +82,11 @@ def index():
         total_count=total_count,
         line_count=line_count,
         paragraph_count=paragraph_count,
+        read_time=read_time,
         types=types,
-        read_time=read_time
+        found_ng_words=found_ng_words
     )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
