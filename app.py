@@ -8,7 +8,6 @@ def improve_text(text, options):
     # C：丁寧語に統一
     if "C" in options:
         result = result.replace("です。", "でございます。")
-        result = result.replace("ます。", "ます。")
 
     # D：クッション言葉追加
     if "D" in options:
@@ -36,7 +35,7 @@ def index():
         if selected:
             improved_text = improve_text(original_text, selected)
         else:
-            improved_text = original_text  # ←重要
+            improved_text = original_text
 
     return render_template(
         "index.html",
