@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import math
+import unicodedata
 
 app = Flask(__name__)
 
@@ -16,6 +17,14 @@ def count_types(text):
     }
 
     for c in text:
+        # 全角・半角判定
+        width = unicodedata.east_asian_width(c)
+        if width in ['F', 'W', 'A']:  # 全角、広い文字、曖昧
+            counts["zenkaku"] += 1
+        else:
+            counts["hankaku"] += 1
+
+        # 文字種類カウント
         code = ord(c)
         if 0x4E00 <= code <= 0x9FAF:  # 漢字
             counts["kanji"] += 1
@@ -27,11 +36,7 @@ def count_types(text):
             counts["alphabet"] += 1
         elif c.isdigit():  # 数字
             counts["number"] += 1
-        elif code > 127:
-            counts["zenkaku"] += 1
-            counts["symbol"] += 1
         else:
-            counts["hankaku"] += 1
             counts["symbol"] += 1
 
     return counts
