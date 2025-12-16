@@ -5,61 +5,32 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     text = ""
-    length = 0
-    lines = 0
-    zenkaku = 0
-
-    if request.method == "POST":
-        text = request.form.get("text", "")
-        length = len(text)
-        lines = text.count("\n") + 1 if text else 0
-        zenkaku = sum(1 for c in text if ord(c) > 127)
-
-    return render_template(
-        "index.html",
-        text=text,
-        length=length,
-        lines=lines,
-        zenkaku=zenkaku
-    )
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    text = ""
     count = 0
-    ignore_space = False
     line_count = 0
     zenkaku = 0
     hankaku = 0
+    ignore_space = False
     only_zenkaku = False
 
     if request.method == "POST":
-        text = request.form["text"]
+        text = request.form.get("text", "")
         ignore_space = "ignore_space" in request.form
         only_zenkaku = "only_zenkaku" in request.form
 
+        # 全角・半角カウント
+        for c in text:
+            if ord(c) <= 127:
+                hankaku += 1
+            else:
+                zenkaku += 1
+
+        # 文字数計算
+        target = text
         if ignore_space:
-            # 空白・改行を除外
-            target = text.replace(" ", "").replace("\n", "")
-            count = len(target)
-        else:
-            count = len(text)
-    for c in text:
-        if ord(c) <= 127:
-            hankaku += 1
-        else:
-            zenkaku += 1
+            target = target.replace(" ", "").replace("\n", "")
 
-    # 「全角だけ数える」がONなら、文字数を全角に合わせる
-    if only_zenkaku:
-        count = zenkaku
-
-    line_count = text.count("\n") + 1 if text else 0
-
+        count = zenkaku if only_zenkaku else len(target)
+        line_count = text.count("\n") + 1 if text else 0
 
     return render_template(
         "index.html",
@@ -71,10 +42,6 @@ def index():
         ignore_space=ignore_space,
         only_zenkaku=only_zenkaku
     )
-
-
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
